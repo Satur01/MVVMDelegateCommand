@@ -19,7 +19,7 @@ Para lograr esto necesitamos hacer una implementación de la interfaz  **IComman
             await messageDialog.ShowAsync();
         }
 
-        public void OnCanExecuteChanged()
+        public void RaiseCanExecuteChanged()
         {
             if (CanExecuteChanged != null)
             {
@@ -54,7 +54,7 @@ Con esto nosotros obtendremos un resultado como el que se muestra en las siguien
 
 ![MVVMCommandScreen1](https://saturninopimentel.com/content/images/2015/06/wp_ss_20150623_0001.png)
 ![MVVMCommandScreen2](https://saturninopimentel.com/content/images/2015/06/wp_ss_20150623_0003.png)
-![](https://saturninopimentel.com/content/images/2015/06/wp_ss_20150623_0002.png)
+![MVVMCommandScreen3](https://saturninopimentel.com/content/images/2015/06/wp_ss_20150623_0002.png)
 
 ####DelegateCommand
 Es cierto que con el código anterior nos será suficiente para poder utilizar **ICommand** y eliminar el code-behind pero esto nos dejará con muchas clases con la implementación de **ICommand**, para evitar esto podemos hacer uso de una clase que se encargue de manejar todas las solicitudes de **ICommand** y así reutilizar esta implementación en todos los comandos necesarios. Para lograr esto solo tenemos que crear una clase llamada **DelegateCommand** (puedes hacer uso del nombre que gustes pero el más común es este) en la cual utilizaremos dos de los delegados definidos por el sistema [**Action**](https://msdn.microsoft.com/en-us/library/system.action(v=vs.110).aspx) y [**Func< T, TResult >**](https://msdn.microsoft.com/en-us/library/bb549151(v=vs.110).aspx) mismos que pasaremos como parámetros en el constructor como se muestra en el siguiente código.
@@ -85,7 +85,7 @@ public class DelegateCommand : ICommand
             _execute();
         }
 
-        public void OnCanExecuteChanged()
+       public void RaiseCanExecuteChanged()
         {
             if (CanExecuteChanged != null)
                 CanExecuteChanged(this, new EventArgs());
@@ -100,7 +100,7 @@ Con esto tu podrías utilizar la clase **DelegateCommand** y mantener la declara
 _sendMessageCommand=new DelegateCommand(SendMessageCommandExecute,SendMessageCommandCanExecute)
 ```
 
-####Consejos para mejorar el rendimiento.
+####Consejos para mejorar el rendimiento
 
 Al hacer uso ya sea de las clases que implementen **ICommand** por separado o bien de **DelegateCommand** e instanciarlas reservaras cierta memoria para su funcionamiento y en entornos donde el uso de memoria sea limitado (teléfonos y tabletas) es necesario reducir al mínimo el uso de esta. Para lograr esto haremos uso de **Lazy<T>**, este genérico nos permite diferir la creación de la instancia hasta ser accedida por primera vez, logrando así evitar la reserva de memoria en funciones que pueden o no ser utilizadas. Para lograr esto necesitamos cambiar nuestro campo y hacer uso de **Lazy<T>** como se muestra a continuación.
 
